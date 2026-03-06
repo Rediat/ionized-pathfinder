@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPUB Reader</title>
+  <link rel="stylesheet" href="reader.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Georgia&family=Literata:opsz,wght@7..72,400;7..72,500&family=Inter:wght@400;500;600&family=Merriweather:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
+    rel="stylesheet">
+</head>
+
+<body class="theme-light" data-spread="single">
+
+  <!-- Night Light Overlay -->
+  <div id="nightLightOverlay" class="night-light-overlay"></div>
+
+  <!-- Brightness Overlay -->
+  <div id="brightnessOverlay" class="brightness-overlay"></div>
+
+  <!-- Drop Zone Overlay -->
+  <div id="dropOverlay" class="drop-overlay hidden">
+    <div class="drop-overlay-content">
+      <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        <line x1="12" y1="8" x2="12" y2="16" />
+        <line x1="8" y1="12" x2="16" y2="12" />
+      </svg>
+      <h2>Drop your EPUB file here</h2>
+      <p>Release to start reading</p>
+    </div>
+  </div>
+
+  <!-- Welcome Screen / Library -->
+  <div id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-content">
+      <div class="welcome-icon">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+      </div>
+      <h1>Edge EPUB Reader</h1>
+      <p>A beautiful reading experience for your EPUB books</p>
+      <div class="welcome-actions">
+        <button id="openFileBtn" class="welcome-btn primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+          Open EPUB File
+        </button>
+        <p class="welcome-hint">or drag &amp; drop an EPUB file anywhere</p>
+      </div>
+      <input type="file" id="fileInput" accept=".epub" hidden>
+
+      <!-- Library Bookshelf -->
+      <div id="librarySection" class="library-section hidden">
+        <h2 class="library-title">Your Library</h2>
+        <div id="libraryGrid" class="library-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Reader UI -->
+  <div id="readerUI" class="reader-ui hidden">
+
+    <!-- Top Toolbar -->
+    <header id="toolbar" class="toolbar">
+      <div class="toolbar-left">
+        <button id="libraryBtn" class="toolbar-btn" title="Back to Library">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+        <button id="tocBtn" class="toolbar-btn" title="Table of Contents (Ctrl+T)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <span id="bookTitle" class="book-title">Untitled Book</span>
+      </div>
+      <div class="toolbar-center">
+        <button id="searchBtn" class="toolbar-btn" title="Search (Ctrl+F)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+      </div>
+      <div class="toolbar-right">
+        <button id="nightLightBtn" class="toolbar-btn" title="Night Light">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+        <button id="readAloudBtn" class="toolbar-btn" title="Read Aloud (Ctrl+Shift+U)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+        </button>
+        <button id="bookmarkBtn" class="toolbar-btn" title="Bookmark this page (Ctrl+D)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+        </button>
+        <button id="settingsBtn" class="toolbar-btn" title="Reading Settings (Ctrl+,)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
+        <button id="fullscreenBtn" class="toolbar-btn" title="Fullscreen (F11)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 3 21 3 21 9" />
+            <polyline points="9 21 3 21 3 15" />
+            <line x1="21" y1="3" x2="14" y2="10" />
+            <line x1="3" y1="21" x2="10" y2="14" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Side Panel -->
+    <aside id="sidePanel" class="side-panel hidden">
+      <div class="side-panel-header">
+        <div class="side-panel-tabs">
+          <button class="panel-tab active" data-panel="toc">Contents</button>
+          <button class="panel-tab" data-panel="bookmarks">Bookmarks</button>
+          <button class="panel-tab" data-panel="annotations">Notes</button>
+          <button class="panel-tab" data-panel="search">Search</button>
+        </div>
+        <button id="closePanelBtn" class="panel-close-btn" title="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- TOC Panel -->
+      <div id="tocPanel" class="panel-content active">
+        <ul id="tocList" class="toc-list"></ul>
+      </div>
+
+      <!-- Bookmarks Panel -->
+      <div id="bookmarksPanel" class="panel-content">
+        <div id="bookmarksList" class="bookmarks-list">
+          <p class="empty-state">No bookmarks yet. Press <kbd>Ctrl+D</kbd> to bookmark the current page.</p>
+        </div>
+      </div>
+
+      <!-- Annotations Panel -->
+      <div id="annotationsPanel" class="panel-content">
+        <div id="annotationsList" class="annotations-list">
+          <p class="empty-state">Select text in the book to highlight and add notes.</p>
+        </div>
+      </div>
+
+      <!-- Search Panel -->
+      <div id="searchPanel" class="panel-content">
+        <div class="search-input-wrap">
+          <input type="text" id="searchInput" placeholder="Search in book..." autocomplete="off">
+          <button id="searchGoBtn" class="search-go-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+        </div>
+        <div id="searchResults" class="search-results">
+          <p class="empty-state">Type a search term and press Enter.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Settings Panel (dropdown from toolbar) -->
+    <div id="settingsPanel" class="settings-panel hidden">
+      <h3>Reading Settings</h3>
+
+      <div class="settings-group">
+        <label>Theme</label>
+        <div class="theme-buttons">
+          <button class="theme-btn active" data-theme="light" title="Light">
+            <span class="theme-preview light-preview"></span> Light
+          </button>
+          <button class="theme-btn" data-theme="sepia" title="Sepia">
+            <span class="theme-preview sepia-preview"></span> Sepia
+          </button>
+          <button class="theme-btn" data-theme="dark" title="Dark">
+            <span class="theme-preview dark-preview"></span> Dark
+          </button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <label>Brightness: <span id="brightnessValue">100</span>%</label>
+        <input type="range" id="brightnessSlider" min="20" max="100" value="100" step="1">
+      </div>
+
+      <div class="settings-group">
+        <label>Night Light: <span id="nightLightValue">0</span>%</label>
+        <input type="range" id="nightLightSlider" min="0" max="80" value="0" step="1">
+      </div>
+
+      <div class="settings-group">
+        <label>Font Size: <span id="fontSizeValue">18</span>px</label>
+        <input type="range" id="fontSizeSlider" min="12" max="36" value="18" step="1">
+      </div>
+
+      <div class="settings-group">
+        <label>Font Family</label>
+        <select id="fontFamilySelect">
+          <option value="'Literata', Georgia, serif">Literata (Serif)</option>
+          <option value="'Merriweather', Georgia, serif">Merriweather (Serif)</option>
+          <option value="Georgia, serif">Georgia (Serif)</option>
+          <option value="'Inter', 'Segoe UI', sans-serif">Inter (Sans-serif)</option>
+          <option value="'Open Sans', 'Segoe UI', sans-serif">Open Sans (Sans-serif)</option>
+        </select>
+      </div>
+
+      <div class="settings-group">
+        <label>Line Spacing: <span id="lineSpacingValue">1.6</span></label>
+        <input type="range" id="lineSpacingSlider" min="1.0" max="2.5" value="1.6" step="0.1">
+      </div>
+
+      <div class="settings-group">
+        <label>Text Alignment</label>
+        <div class="align-buttons">
+          <button class="align-btn active" data-align="left" title="Left Align">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="17" y1="10" x2="3" y2="10" />
+              <line x1="21" y1="6" x2="3" y2="6" />
+              <line x1="17" y1="14" x2="3" y2="14" />
+              <line x1="21" y1="18" x2="3" y2="18" />
+            </svg>
+            Left
+          </button>
+          <button class="align-btn" data-align="justify" title="Justify">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="21" y1="10" x2="3" y2="10" />
+              <line x1="21" y1="6" x2="3" y2="6" />
+              <line x1="21" y1="14" x2="3" y2="14" />
+              <line x1="21" y1="18" x2="3" y2="18" />
+            </svg>
+            Justify
+          </button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <label>Page Layout</label>
+        <div class="layout-buttons">
+          <button class="layout-btn active" data-spread="single" title="Single Page">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="5" y="3" width="14" height="18" rx="2" />
+            </svg>
+            Single
+          </button>
+          <button class="layout-btn" data-spread="double" title="Two-Page Spread">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="3" width="10" height="18" rx="1" />
+              <rect x="13" y="3" width="10" height="18" rx="1" />
+            </svg>
+            Spread
+          </button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <label>Scroll Mode</label>
+        <div class="flow-buttons">
+          <button class="flow-btn active" data-flow="paginated" title="Paginated">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="12" y1="3" x2="12" y2="21" />
+            </svg>
+            Pages
+          </button>
+          <button class="flow-btn" data-flow="scrolled" title="Continuous Scroll">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="12" y1="8" x2="12" y2="16" />
+              <polyline points="8 12 12 16 16 12" />
+            </svg>
+            Scroll
+          </button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="toggle-row">
+          <label>Page Turn Animation</label>
+          <button id="pageAnimToggle" class="toggle-switch active" title="Toggle page animation">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read Aloud Controls -->
+    <div id="readAloudBar" class="read-aloud-bar hidden">
+      <button id="raPlayPause" class="ra-btn" title="Play/Pause">
+        <svg id="raPlayIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3" />
+        </svg>
+        <svg id="raPauseIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="hidden">
+          <rect x="6" y="4" width="4" height="16" />
+          <rect x="14" y="4" width="4" height="16" />
+        </svg>
+      </button>
+      <button id="raStop" class="ra-btn" title="Stop">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="6" width="12" height="12" rx="1" />
+        </svg>
+      </button>
+      <div class="ra-speed">
+        <label>Speed</label>
+        <select id="raSpeedSelect">
+          <option value="0.5">0.5x</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+      </div>
+      <div class="ra-voice">
+        <label>Voice</label>
+        <select id="raVoiceSelect"></select>
+      </div>
+      <button id="raClose" class="ra-btn ra-close-btn" title="Close Read Aloud">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Highlight Context Menu -->
+    <div id="highlightMenu" class="highlight-menu hidden">
+      <button class="hl-color" data-color="#FFEB3B" title="Yellow" style="background:#FFEB3B"></button>
+      <button class="hl-color" data-color="#81C784" title="Green" style="background:#81C784"></button>
+      <button class="hl-color" data-color="#64B5F6" title="Blue" style="background:#64B5F6"></button>
+      <button class="hl-color" data-color="#F48FB1" title="Pink" style="background:#F48FB1"></button>
+      <span class="hl-divider"></span>
+      <button id="hlDefineBtn" class="hl-action-btn" title="Define">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+      </button>
+      <button id="hlTranslateBtn" class="hl-action-btn" title="Translate">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 8l6 6" />
+          <path d="M4 14l6-6 2-3" />
+          <path d="M2 5h12" />
+          <path d="M7 2h1" />
+          <path d="M22 22l-5-10-5 10" />
+          <path d="M14 18h6" />
+        </svg>
+      </button>
+      <button id="hlNoteBtn" class="hl-action-btn" title="Add Note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      </button>
+      <button id="hlRemoveBtn" class="hl-action-btn" title="Remove Highlight">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Dictionary Popup -->
+    <div id="dictPopup" class="dict-popup hidden">
+      <div class="dict-popup-header">
+        <h4 id="dictWord"></h4>
+        <span id="dictPhonetic" class="dict-phonetic"></span>
+        <button id="dictClose" class="dict-close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div id="dictContent" class="dict-content"></div>
+    </div>
+
+    <!-- Translation Popup -->
+    <div id="translatePopup" class="translate-popup hidden">
+      <div class="translate-popup-header">
+        <h4>Translation</h4>
+        <select id="translateLang" class="translate-lang-select">
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="it">Italian</option>
+          <option value="pt">Portuguese</option>
+          <option value="ru">Russian</option>
+          <option value="zh">Chinese</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="ar">Arabic</option>
+          <option value="hi">Hindi</option>
+        </select>
+        <button id="translateClose" class="dict-close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="translate-original" id="translateOriginal"></div>
+      <div class="translate-result" id="translateResult">Translating...</div>
+    </div>
+
+    <!-- Reader Content Area -->
+    <main id="readerContent" class="reader-content">
+      <button id="prevPage" class="nav-arrow nav-prev" title="Previous page (←)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <div id="viewer" class="epub-viewer"></div>
+      <button id="nextPage" class="nav-arrow nav-next" title="Next page (→)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+    </main>
+
+    <!-- Bottom Bar -->
+    <footer id="bottomBar" class="bottom-bar">
+      <div class="progress-info">
+        <span id="currentChapter" class="current-chapter"></span>
+        <span id="readingTime" class="reading-time"></span>
+        <span id="pageIndicator" class="page-indicator"></span>
+      </div>
+      <div class="progress-slider-wrap">
+        <input type="range" id="progressSlider" class="progress-slider" min="0" max="100" value="0" step="0.1">
+      </div>
+    </footer>
+  </div>
+
+  <script src="lib/jszip.min.js"></script>
+  <script src="lib/epub.min.js"></script>
+  <script src="reader.js"></script>
+</body>
+
+</html>
