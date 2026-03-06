@@ -1,0 +1,24 @@
+{
+  "name": "ionized-pathfinder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rediat/ionized-pathfinder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Rediat/ionized-pathfinder/issues"
+  },
+  "homepage": "https://github.com/Rediat/ionized-pathfinder#readme"
+}
