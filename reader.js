@@ -326,7 +326,28 @@
         populateVoices();
         loadLibrary();
 
-        // Check URL params for epub URL
+        // Check for Electron IPC file open event
+        if (window.electronAPI) {
+            window.electronAPI.onOpenFile(async (filePath) => {
+                showLoading();
+                welcomeScreen.classList.add('hidden');
+                readerUI.classList.remove('hidden');
+
+                const response = await window.electronAPI.readFile(filePath);
+                if (response.success) {
+                    bookKey = 'epub_' + response.fileName.replace(/\W/g, '_');
+                    // Convert Node Buffer (which comes over IPC as a Uint8Array) to ArrayBuffer
+                    const arrayBuffer = response.data.buffer.slice(response.data.byteOffset, response.data.byteOffset + response.data.byteLength);
+                    currentBookData = arrayBuffer;
+                    initBook(arrayBuffer, response.fileName);
+                } else {
+                    hideLoading();
+                    viewer.innerHTML = `<div class="loading-spinner"><p>Failed to load book: ${response.error}</p></div>`;
+                }
+            });
+        }
+
+        // Check URL params for epub URL (standard web version)
         const params = new URLSearchParams(window.location.search);
         const epubUrl = params.get('url');
         if (epubUrl) {

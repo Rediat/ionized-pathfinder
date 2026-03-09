@@ -1,24 +1,44 @@
 {
   "name": "ionized-pathfinder",
   "version": "1.0.0",
-  "description": "",
-  "main": "background.js",
-  "directories": {
-    "lib": "lib"
-  },
+  "description": "A beautiful EPUB reader inspired by the classic Microsoft Edge reading experience.",
+  "main": "main.js",
   "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.edge.epubreader",
+    "productName": "Edge EPUB Reader",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icons/icon128.png"
+    }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Rediat/ionized-pathfinder.git"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Edge EPUB Reader"
+  },
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/Rediat/ionized-pathfinder/issues"
   },
-  "homepage": "https://github.com/Rediat/ionized-pathfinder#readme"
+  "homepage": "https://github.com/Rediat/ionized-pathfinder#readme",
+  "devDependencies": {
+    "electron": "^40.8.0",
+    "electron-builder": "^26.8.1",
+    "electron-packager": "^17.1.2"
+  }
 }
